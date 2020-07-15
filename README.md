@@ -204,3 +204,118 @@ TEST(Examples, ExceptionAssertExamples)
 - gtest_filter: Reular expressions which indicate which tests should be run in the format of `TestCaseRegEx:TestRegEx`
 - gtest_repeat: Repeats running the tests for specified number of times. Can be very helpful for ensuring you do not have any flaky test or intermittent failure
 - gtest_shuffle: Runs the tests in a randomized order. Helps to ensure no dependencies between the tests (as it should not matter what order the tests are executed)
+
+
+### Test Doubles
+
+- Almost all code depends (i.e. collaborates) with other parts of the system
+- Those other parts of the system are not always easy to replicate in the unit test environment or would make tests slow if used directly
+- Test double are objects that are used in unit tests as replacements to the real production system collaborators
+
+**Types of Test Doubles**
+
+- **Dummy**: Objects that can be passed around as necessary but do not have any type of test implementation and should never be used.
+- **Fake**: These object generally have a simplified functional implementation of a particular interface that is adequate for testing but not for production
+- **Stub**: These objects provide implementations with canned answers that are suitable for the test
+- **Spies**: These objects provide implementations that records the values that were passed in sothey can be used by the test
+- **Mocks**: These objects are pre-programmed to expect specific calls and parameters and can throw exceptions when necessary
+
+**Dummy Example**
+
+```cpp
+class MyDummy : public MyInterface
+{
+    public:
+        void some_function()
+        {
+            throw "I should not be called!;
+        }
+};
+```
+
+- Dummy objects are expected to never be used and will generally throw an excaption if one of thier methods is actually called.
+
+**Stub Example**
+
+```cpp
+class MyStub : public MyInterface
+{
+    public:
+        int some_function()
+        {
+            return 0;
+        }
+};
+```
+
+- Stubs are different than dummy test doubles in that they do expect to be called and return canned data.
+
+**Fake Example**
+
+```cpp
+class MyTestDB : public DBInterface
+{
+    public:
+        void pushData(int data)
+        {
+            dataItems.push_back(data);
+        }
+    protected:
+        vector<int> dataItems;
+};
+```
+
+- Fake objecets provide what is usually a simplified implementation of an interface that is functional but not appropriate for production (i.e. an in memory database)
+
+**Spy Example**
+
+```cpp
+class MySpy : public MyInterface
+{
+    public:
+        int savedParam;
+        void SomeFunction(int param1)
+        {
+            savedParam = param1;
+        }
+};
+```
+
+- Spy objects save the parameters that were passed into them so they can be analyzed by the test
+
+**Mock Example**
+
+```cpp
+class MyMock : public MyInterface
+{
+    public:
+        void some_function(int param1)
+        {
+            if( 1 != param1)
+                throw "I should not be called";
+        }
+};
+```
+
+- Mock objects are the most intelligent test double. they are setup with expectations on how they will be called and will throw exceptions when those expectations are not met.
+
+**Mock Frameworks**
+
+- Most mock frameworks provide easy ways for automatically creating any of these test doubles at runtime
+- They provide a fast means for creating mocking expectations for your tests
+- They can be much more efficient than implementing custom mock object of your own creation
+- Creating mock objects by hand can be tedious and error prone
+
+**Google Mock**
+
+- C++ Mocking Framework from Google
+- Included with and works well with Google Test
+- Can be used with any C++ Unit Testing Framework
+
+### Google Mock Workflow
+
+- Create Mock Classes derived from the interface classes that the mock is replacing
+- In the Mock Class call the MOCK_METHODn Google Mock macro to specify what methods will be mocked
+- Create an instance of your mock class in your test
+- Then specify the expectations for the test
+
