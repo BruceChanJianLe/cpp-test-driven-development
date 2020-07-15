@@ -319,3 +319,66 @@ class MyMock : public MyInterface
 - Create an instance of your mock class in your test
 - Then specify the expectations for the test
 
+**Google Mock Expectations**
+
+- Expectations are defined in the test using the EXPECT_CALL macro
+- EXPECT_CALL is passed in the mock object and function the expectations is being set for
+
+Example
+```cpp
+EXPECT_CALL(myMockObj, getData());
+```
+
+**Specifying Parameters with Matches**
+
+- For functions that are passed parameters Google Mock needs to know what values are expected.
+- This is done with Matchers. Matchers allow you to specify that a parameter is any value, equal to a specific value, or typical mathematical relationships such as gt, lt...
+
+Example
+```cpp
+EXPECT_CALL(myMockObj, setData(_));
+```
+
+**Additional Matcher Examples**
+```cpp
+
+EXPECT_CALL(myMockObj, setData(100));
+EXPECT_CALL(myMockObj, setData( Ge(100) ));
+EXPECT_CALL(myMockObj, setData( NotNull(myObj) ));
+
+```
+
+- You tell Google Mock how many times a function will be called with the `Times` clause
+- You can specify an exact number or use a built in expression such as `AtLeast` or `AtMost`
+
+Example
+```cpp
+EXPECT_CALL(myMockObj, setData(100)),Times(2);
+```
+
+**Actions - Telling Goolge Mock What should Happen**
+
+- You tell Google Mockk what should happen when amocked function is called via an Action
+- Actions are specified after the Times clause and are things like return values and throwing exceptions
+- WillOnce: Specifies an action that will be done on one call to the function
+- WillRepeatedly: Specifies an action that is done on many calls to the function
+
+Example
+```cpp
+EXPECT_CALL(myMockObj, getData()).WillOnce(Return(1));
+```
+
+**Additional Action Examples**
+```cpp
+EXPECT_CALL(myMockObj, getData())
+    .WillRepeatedly(Return(1));
+
+EXPECT_CALL(myMockObj, getData())
+    .WillOnce(Return(1))
+    .WillOnce(Return(2))
+    .WillOnce(Return(3));
+
+EXPECT_CALL(myMockObj, getData())
+    .Times(4)
+    .WillRepeatedly(Return(1));
+```
