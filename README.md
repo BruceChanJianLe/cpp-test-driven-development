@@ -53,8 +53,154 @@ TDD Work Flow: Red, Green, Refactor
 - Refactor the unit test and the production code to make it clean (the REFACTOR phase)
 - Repeat until the features are complete
 
+RED ==> GREEN ==> REFACTOR (REPEAT)
+
 ### Uncle Bob's 3 Laws of TDD
 
 - You may not write any production code until you have written a failing unit test
 - You may not write more of a unit test than is sufficient to fail, and not compiling is failing
 - You may not write more production code than is sufficient to pass the currently failing unit test
+
+### Google Test Overview
+
+- Goolge Test is an open source C++ unit testing framework from Google
+- Provides the ability to create Tests, Test Cases, and Test Suites
+- Provides several types of assert macros for generating unit test failures based on boolean, binary and string comparisions
+- Has command line parameters to help filter which tests are executed and in what order
+
+**The TEST Macro**
+
+```cpp
+TEST(TestCaseName, TestName)
+{
+    EXPECT_EQ(1, 1);
+}
+```
+
+- The `TEST` macor defines an individual test for a particular test case
+- Tests from the same test cases will be grouped together in the execution output
+- Test case and test names should be valid C++ identifiers and shuold not use "_"
+
+**Test Fixtures/Suites**
+
+- Allows for common setup and teardown between tests
+- Test Fixtures are classes derived from ::testing::Test
+- Each Test Fixture class can implement virtual SetUp and TearDown functions which will be called between each test.
+- Tests that are using a test fixture use the `TEST_F` macro rather than `TEST` and pass in the test fixture class name and the test name
+
+```cpp
+TEST_F(TEST_F(TestFixtureClass, TestName)))
+```
+
+**Test Fixtures - Constructor/Destructor vs SetUp/TearDown**
+
+- Can use test fixtures constructor/destructor instead of SetUp/TearDown since new instance is created for each test
+- Constructor/Destructor is preferable as it allows for const member variables and automatic calls to base class constructors
+- SetUp/TearDown functions may still be necessary if you may throw an exception during cleanup as this leads to undefined behaviour in destructors
+
+```cpp
+class TestFixtureExample : public ::testing::Test
+{
+    public:
+        TestFixtureExample::TestFixtureExample
+        {
+            testObj = new TestObj();
+        }
+
+        virtual void TearDown()
+        {
+            delete(testObj);
+        }
+
+        TEST_F(TestFixtureExample, TestIt)
+        {
+            ASSERT_TRUE(testObj->run());
+        }
+}
+```
+
+**Google Test Asserts**
+
+- Perform the checks that determine if a test passes or fails
+- Two failure types:
+    - `ASSERT_*` macros which abourt the current test if they fail
+    - `EXPECT_*` macros which indicate a failure but do not abort the current test
+- `EXPECT_*` macros should be used if possible
+- Four Comparison Types:
+    - Basic - Verifies that a passed boolean expression evaluates to true or false
+    - Binary - Compares binary values to see if they are equal, not equal, less than, less than or equal, greater than, greater than or equal
+    - String - Compares two C style strings to see if they are equal, not equal, equal ignoring case, or not equal ignoring case
+    - Floats/Doubles - Compares two floats or doubles to see if they are "close" to equal. Also provides an assert for specifying the max allowed difference between the floats
+
+**Basic Comparison Example**
+
+```cpp
+TEST(Examples, BasisAssertExamples)
+{
+    ASSERT_TRUE(1 == 1);  // Pass
+    ASSERT_FALSE(1 == 2);  // Pass
+    ASSERT_TRUE(1 == 2);  // Fail
+    ASSERT_FALSE(1 == 1);  // Fail
+}
+```
+
+**Binary Comparison Example**
+
+```cpp
+TEST(Examples, BinaryAssertsExampls)
+{
+    ASSERT_EQ(1, 1);    // Equal
+    ASSERT_NE(1, 2);    // Not equal
+    ASSERT_LT(1, 2);    // Less than
+    ASSERT_LE(1, 1);    // Less than or equal
+    ASSERT_GT(2, 1);    // Greater than
+    ASSERT_GE(2, 2);    // Greater than or equal to
+}
+```
+
+**String Comparison Example**
+
+```cpp
+TEST(Examples, StringAssertExamples)
+{
+    ASSERT_EQ(std::string("1"), std::string("1"));
+    ASSERT_NE(std::string("a"), std::string("b"));
+    ASSERT_STREQ("a", "a");
+    ASSERT_STRNE("a", "b");
+    ASSERT_STRCASEEQ("A", "a");
+    ASSERT_STRCASENE("A", "b");
+}
+```
+
+**Float/Double Comparison Example**
+
+```cpp
+TEST(Examples, FloatDoubleAssertExamples)
+{
+    ASSERT_FLOAT_EQ(1.0001f, 1.0001f);
+    ASSERT_DOUBLE_EQ(1.0001, 1.0001);
+    ASSERT_NEAR(1.0001, 1.0001, .0001); // Pass
+    ASSERT_NEAR(1.0001, 1.0003, .0001); // Fail
+}
+```
+
+**Asserts on Exceptions**
+
+- Fails when a specific exception is not thrown, when any exception is not thrown, or when an exception is thrown and none was expected
+
+```cpp
+TEST(Examples, ExceptionAssertExamples)
+{
+    ASSERT_THROW(callIt(), ReallyBadException);
+    ASSERT_ANY_THROW(callIt());
+    ASSERT_NO_THROW(callIt());  // Pass
+}
+```
+
+
+**Command Line Arguments**
+
+- Many command line options available for controlling how tests are run
+- gtest_filter: Reular expressions which indicate which tests should be run in the format of `TestCaseRegEx:TestRegEx`
+- gtest_repeat: Repeats running the tests for specified number of times. Can be very helpful for ensuring you do not have any flaky test or intermittent failure
+- gtest_shuffle: Runs the tests in a randomized order. Helps to ensure no dependencies between the tests (as it should not matter what order the tests are executed)
