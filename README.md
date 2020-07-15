@@ -371,9 +371,7 @@ EXPECT_CALL(myMockObj, getData()).WillOnce(Return(1));
 **Additional Action Examples**
 ```cpp
 EXPECT_CALL(myMockObj, getData())
-    .WillRepeatedly(Return(1));
-
-EXPECT_CALL(myMockObj, getData())
+    .WillRepeatedly(Return(1));EXPECT_CALL(myMockObj, getData())
     .WillOnce(Return(1))
     .WillOnce(Return(2))
     .WillOnce(Return(3));
@@ -382,3 +380,37 @@ EXPECT_CALL(myMockObj, getData())
     .Times(4)
     .WillRepeatedly(Return(1));
 ```
+
+### Test Driven Development Best Practices
+
+**Always Do the Next Simplest Test Case**
+
+- Doing the next simplest test case allows you to gradually increase the complexity of your code
+- If you jump into the complex test cases too quickly you will find yourself stuck writing a lot of functionality all at once
+- Beyond just slowing you down, this can also lead to bad design decisions
+
+**Use Descriptive Test Names**
+
+- Code is read 1000 times more than it is written. Make it clear and readable
+- Unit tests are the best ducumentation for how your code works. Make them easy to understand
+- Test suites should name the class or function under test and the test names should describe the functionality being tested
+
+**Keep Test Fast**
+
+- One of the biggest benefits of TDD is the fast feedback on how your changes have affected things
+- This goes away if your unit tests take more than a few seconds to build and run
+- To help your test stay fast try to:
+    - Keep console output to a minimum. This slows things down and can clutter up the testing framework output
+    - Mock out any slow collaborators with test doubles that are fast
+
+**Use Code Coverage Tools**
+
+- Once you have all your test cases covered and you think you are done run your unit test through a code coverage tool
+- This can help you identify any test case you may have missed (i.e. negative test cases)
+- You should have a goal of 100% code coverage in functions with real logic them (i.e. not simple getters/setters)
+
+**Run Your Test Multiple Time and In Random Order**
+
+- Running your tests many times will help help ensure that you do not have any flaky test that fail intermittenly
+- Running your tests in random order ensures that your tests do not have any dependencies between each other
+- Use the gtest_repeat and gtest_shuffle command line parameters with your unit test executable to do this
